@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - url_shortener_net
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - url_shortener_net
+
+  url_shortener:
+    build: .
+    container_name: url_shortener_service
+    restart: always
+    depends_on:
+      - mongodb
+      - redis
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+    networks:
+      - url_shortener_net
+
+volumes:
+  mongo_data:
+
+networks:
+  url_shortener_net:
+    driver: bridge
